@@ -1,0 +1,29 @@
+{
+  "name": "real-estate-matcher",
+  "version": "1.0.0",
+  "description": "A property matching system connecting clients' requests with agents' ads. Features include secure authentication, efficient request-ad matching, detailed statistics for admins, and a robust API built with Node.js and MongoDB.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FaresMagdy99/real-estate-matcher.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FaresMagdy99/real-estate-matcher/issues"
+  },
+  "homepage": "https://github.com/FaresMagdy99/real-estate-matcher#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.0",
+    "mongoose-paginate-v2": "^1.8.1"
+  }
+}

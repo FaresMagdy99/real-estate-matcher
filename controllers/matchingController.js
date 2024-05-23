@@ -1,5 +1,6 @@
 const PropertyRequest = require('../models/propertyRequest');
 const Ad = require('../models/ad');
+const jwt = require('jsonwebtoken');
 
 exports.getMatchingRequests = async (req, res) => {
   try {
@@ -7,7 +8,8 @@ exports.getMatchingRequests = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10; 
     const page = parseInt(req.query.page) || 1;
 
-    
+    jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
+
     const ad = await Ad.findById(adId);
     if (!ad) return res.status(404).json({ message: 'Ad not found' });
 
@@ -32,6 +34,8 @@ exports.getMatchingRequests = async (req, res) => {
 
     const requests = await PropertyRequest.aggregate(pipeline);
     const totalRequests = await PropertyRequest.countDocuments({ district: ad.district });
+
+    if (totalRequests == 0) return res.status(200).json({ message: 'No matching requests' });
 
     res.status(200).json({
       requests,

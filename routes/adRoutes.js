@@ -9,6 +9,6 @@ router.post('/', adController.createAd); // Create Ad
 
 router.get('/:adId/requests', matchingController.getMatchingRequests); // Get Matching Requests for Ad
 
-router.post('/propReq', propertyRequestController.createRequest)
+// router.post('/propReq', propertyRequestController.createRequest)
 
 module.exports = router;

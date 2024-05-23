@@ -1,5 +1,6 @@
 const Ad = require('../models/ad');
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 
 exports.createAd = async (req, res) => {
   try {
@@ -9,7 +10,9 @@ exports.createAd = async (req, res) => {
     const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
     const userId = decoded.userId;
 
-    if (decoded.role !== 'AGENT') {
+    const user = await User.findOne({ _id: userId })
+    // console.log(user);
+    if (user.role !== 'AGENT') {
       return res.status(401).json({ message: 'Unauthorized: Only agents can create ads' });
     }
 

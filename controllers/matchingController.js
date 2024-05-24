@@ -17,15 +17,13 @@ exports.getMatchingRequests = async (req, res) => {
 
     // Aggregation pipeline to find matching requests
     const pipeline = [
-      { $match: { district: ad.district } },
       {
         $match: {
-          price: { $gte: minPrice, $lte: maxPrice },
-        },
+          district: ad.district,
+          price: { $gte: minPrice, $lte: maxPrice }
+        }
       },
       { $sort: { refreshedAt: -1 } }, // descending
-      // Sort stage can only use the index when it is the first stage
-      // Or the first stage AFTER a first match https://www.mongodb.com/docs/manual/reference/operator/aggregation/sort/#-sort-operator-and-memory:~:text=The%20%24sort%20operator%20can%20take%20advantage%20of%20an%20index%20if%20it%27s%20used%20in%20the%20first%20stage%20of%20a%20pipeline%20or%20if%20it%27s%20only%20preceeded%20by%20a%20%24match%20stage.
       { $skip: limit * (page - 1) }, // Pagination: skip based on page and limit
       { $limit: limit },
     ];

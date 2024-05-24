@@ -13,91 +13,61 @@ exports.getAdminStats = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        /* Notes:
-            1. Unwind must follow lookup immedietly https://www.mongodb.com/docs/manual/core/aggregation-pipeline-optimization/#-lookup---unwind--and--match-coalescence
-            2. Use $ifNull instead of $no
-        
-        */
         const pipeline = [
             {
                 $lookup: {
-                    'from': 'propertyrequests',
-                    'localField': '_id',
-                    'foreignField': 'createdBy',
-                    'as': 'requests'
-                }
-            }, {
+                    from: "propertyrequests",
+                    localField: "_id",
+                    foreignField: "createdBy",
+                    as: "requests",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$requests",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $lookup: {
-                    'from': 'ads',
-                    'localField': '_id',
-                    'foreignField': 'createdBy',
-                    'as': 'ads'
-                }
-            }, {
+                    from: "ads",
+                    localField: "_id",
+                    foreignField: "createdBy",
+                    as: "ads",
+                },
+            },
+            {
                 $unwind: {
-                    'path': '$requests',
-                    'preserveNullAndEmptyArrays': true
-                }
-            }, {
-                $unwind: {
-                    'path': '$ads',
-                    'preserveNullAndEmptyArrays': true
-                }
-            }, {
+                    path: "$ads",
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
                 $group: {
-                    '_id': '$_id',
-                    'name': {
-                        '$first': '$name'
+                    _id: "$_id",
+                    name: { $first: "$name", },
+                    role: { $first: "$role", },
+                    requestsCount: {
+                        $sum: { $cond: [{ $ifNull: ["$requests", false], }, 1, 0,], },
                     },
-                    'role': {
-                        '$first': '$role'
+                    totalRequestsAmount: {
+                        $sum: { $ifNull: ["$requests.price", 0], },
                     },
-                    'requestsCount': {
-                        '$sum': {
-                            '$cond': [
-                                {
-                                    '$not': [
-                                        '$requests'
-                                    ]
-                                }, 0, 1
-                            ]
-                        }
+                    adsCount: {
+                        $sum: { $cond: [{ $ifNull: ["$ads", false], }, 1, 0,], },
                     },
-                    'totalRequestsAmount': {
-                        '$sum': '$requests.price'
+                    totalAdsAmount: {
+                        $sum: { $ifNull: ["$ads.price", 0], },
                     },
-                    'adsCount': {
-                        '$sum': {
-                            '$cond': [
-                                {
-                                    '$not': [
-                                        '$ads'
-                                    ]
-                                }, 0, 1
-                            ]
-                        }
-                    },
-                    'totalAdsAmount': {
-                        '$sum': '$ads.price'
-                    }
-                }
+                },
             },
             {
                 $facet: {
-                    'metadata': [{ '$count': 'total' }],
-                    'data': [{ '$skip': skip }, { '$limit': limit }]
-
-                }
-            }
+                    metadata: [{ $count: "total", },],
+                    data: [{ $skip: 0, }, { $limit: 10, },],
+                },
+            },
         ];
-
-        /*
-           P1: Stage 1 --> Stage 2 --> Stage 3 ---> Stage N ---> metadata P2 : Stage 3-1 ---> Stage 3-2
-                                                        |
-                                                        |
-                                                        v
-                                                        Data P3: Stage 3-1 ---> Stage 3-2
-        */
 
         const stats = await User.aggregate(pipeline);
         const total = stats[0].metadata[0] ? stats[0].metadata[0].total : 0;

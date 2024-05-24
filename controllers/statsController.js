@@ -1,10 +1,7 @@
 const User = require('../models/user');
-const jwt = require('jsonwebtoken');
 
 exports.getAdminStats = async (req, res) => {
-    // Verify JWT token, get user ID, and check role (implement middleware)
-    const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    const userId = req.userId;
 
     const user = await User.findOne({ _id: userId });
     if (user.role !== 'ADMIN') {
@@ -16,33 +13,38 @@ exports.getAdminStats = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
+        /* Notes:
+            1. Unwind must follow lookup immedietly https://www.mongodb.com/docs/manual/core/aggregation-pipeline-optimization/#-lookup---unwind--and--match-coalescence
+            2. Use $ifNull instead of $no
+        
+        */
         const pipeline = [
             {
-                '$lookup': {
+                $lookup: {
                     'from': 'propertyrequests',
                     'localField': '_id',
                     'foreignField': 'createdBy',
                     'as': 'requests'
                 }
             }, {
-                '$lookup': {
+                $lookup: {
                     'from': 'ads',
                     'localField': '_id',
                     'foreignField': 'createdBy',
                     'as': 'ads'
                 }
             }, {
-                '$unwind': {
+                $unwind: {
                     'path': '$requests',
                     'preserveNullAndEmptyArrays': true
                 }
             }, {
-                '$unwind': {
+                $unwind: {
                     'path': '$ads',
                     'preserveNullAndEmptyArrays': true
                 }
             }, {
-                '$group': {
+                $group: {
                     '_id': '$_id',
                     'name': {
                         '$first': '$name'
@@ -81,12 +83,21 @@ exports.getAdminStats = async (req, res) => {
                 }
             },
             {
-                '$facet': {
+                $facet: {
                     'metadata': [{ '$count': 'total' }],
                     'data': [{ '$skip': skip }, { '$limit': limit }]
+
                 }
             }
         ];
+
+        /*
+           P1: Stage 1 --> Stage 2 --> Stage 3 ---> Stage N ---> metadata P2 : Stage 3-1 ---> Stage 3-2
+                                                        |
+                                                        |
+                                                        v
+                                                        Data P3: Stage 3-1 ---> Stage 3-2
+        */
 
         const stats = await User.aggregate(pipeline);
         const total = stats[0].metadata[0] ? stats[0].metadata[0].total : 0;

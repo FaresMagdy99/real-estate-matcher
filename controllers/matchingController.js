@@ -1,6 +1,5 @@
 const PropertyRequest = require('../models/propertyRequest');
 const Ad = require('../models/ad');
-const jwt = require('jsonwebtoken');
 
 exports.getMatchingRequests = async (req, res) => {
   try {
@@ -8,14 +7,11 @@ exports.getMatchingRequests = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10; 
     const page = parseInt(req.query.page) || 1;
 
-    jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-
     const ad = await Ad.findById(adId);
     if (!ad) return res.status(404).json({ message: 'Ad not found' });
 
     const priceTolerance = 0.1; // 10% tolerance
 
-    // Calculate price range based on ad price and tolerance
     const minPrice = ad.price * (1 - priceTolerance);
     const maxPrice = ad.price * (1 + priceTolerance);
 
@@ -28,12 +24,14 @@ exports.getMatchingRequests = async (req, res) => {
         },
       },
       { $sort: { refreshedAt: -1 } }, // descending
+      // Sort stage can only use the index when it is the first stage
+      // Or the first stage AFTER a first match https://www.mongodb.com/docs/manual/reference/operator/aggregation/sort/#-sort-operator-and-memory:~:text=The%20%24sort%20operator%20can%20take%20advantage%20of%20an%20index%20if%20it%27s%20used%20in%20the%20first%20stage%20of%20a%20pipeline%20or%20if%20it%27s%20only%20preceeded%20by%20a%20%24match%20stage.
       { $skip: limit * (page - 1) }, // Pagination: skip based on page and limit
       { $limit: limit },
     ];
 
     const requests = await PropertyRequest.aggregate(pipeline);
-    const totalRequests = await PropertyRequest.countDocuments({ district: ad.district });
+    const totalRequests = await PropertyRequest.countDocuments({ district: ad.district }); //???? askk
 
     if (totalRequests == 0) return res.status(200).json({ message: 'No matching requests' });
 

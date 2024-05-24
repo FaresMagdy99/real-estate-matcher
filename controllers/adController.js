@@ -1,14 +1,12 @@
 const Ad = require('../models/ad');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 exports.createAd = async (req, res) => {
   try {
     const { propertyType, area, price, city, district, description } = req.body;
 
-    // Verify JWT token, get user ID, and check role (implement middleware)
-    const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    const userId = req.userId;
+
 
     const user = await User.findOne({ _id: userId })
     // console.log(user);

@@ -3,11 +3,11 @@ const router = express.Router();
 const adController = require('../controllers/adController');
 const matchingController = require('../controllers/matchingController');
 const propertyRequestController = require('../controllers/propertyRequestController')
-// ... middleware (e.g., authentication) ...
+const auth = require('../utils/JWTAuth')
 
-router.post('/', adController.createAd); // Create Ad
+router.post('/', auth, adController.createAd); 
 
-router.get('/:adId/requests', matchingController.getMatchingRequests); // Get Matching Requests for Ad
+router.get('/:adId/requests', auth, matchingController.getMatchingRequests); 
 
 // router.post('/propReq', propertyRequestController.createRequest)
 

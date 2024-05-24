@@ -1,13 +1,11 @@
 const PropertyRequest = require('../models/propertyRequest');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 exports.createRequest = async (req, res) => {
   try {
     const { propertyType, area, price, city, district, description } = req.body;
 
-    const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    const userId = req.userId;
 
     const user = await User.findOne({ _id: userId })
     // console.log(user);
@@ -40,8 +38,7 @@ exports.updateRequest = async (req, res) => {
     const { requestId } = req.params; 
     const { description, area, price } = req.body;
 
-    const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-    const userId = decoded.userId;
+    const userId = req.userId;
 
     const user = await User.findOne({ _id: userId })
     // console.log(user);

@@ -7,6 +7,7 @@ const propertyRequestRoutes = require('./routes/propertyRequestRoutes');
 const adRoutes = require('./routes/adRoutes');
 const statsRoutes = require('./routes/statsRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const auth = require('./utils/JWTAuth')
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ mongoose.connect(mongoURI)
 const app = express();
 
 app.use(express.json());
-app.use(cors()); // (remove for production)
+app.use(cors()); // remove for production
 
 // Routes
 app.use('/api/users', userRoutes);

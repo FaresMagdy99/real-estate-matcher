@@ -4,14 +4,13 @@ const express = require('express');
 const router = express.Router();
 const PropertyRequest = require('../models/propertyRequest');
 const Ad = require('../models/ad');
-const jwt = require('jsonwebtoken');
+const auth = require('../utils/JWTAuth')
 
-router.get('/propertyRequests', async (req, res) => {
+router.get('/propertyRequests', auth, async (req, res) => {
 
     try {
-        jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
 
-        const { propertyType, city, district, minPrice = 0, maxPrice = Infinity, areaMin = 0, areaMax = Infinity/*, features*/ } = req.query;
+        const { propertyType, city, district, minPrice = 0, maxPrice = Infinity, areaMin = 0, areaMax = Infinity} = req.query;
 
         const filters = {
             ...(propertyType && { propertyType }),
@@ -19,7 +18,6 @@ router.get('/propertyRequests', async (req, res) => {
             ...(district && { district }),
             ...(minPrice && maxPrice && { price: { $gte: minPrice, $lte: maxPrice } }),
             ...(areaMin && areaMax && { area: { $gte: areaMin, $lte: areaMax } }),
-            //   ...(features && { features: { $in: features.split(',') } }),
         };
 
         const requests = await PropertyRequest.find(filters).sort({ refreshedAt: -1 });
@@ -31,11 +29,10 @@ router.get('/propertyRequests', async (req, res) => {
     }
 });
 
-router.get('/ads', async (req, res) => {
+router.get('/ads', auth, async (req, res) => {
     try {
-        jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
 
-        const { propertyType, city, district, minPrice = 0, maxPrice = Infinity, areaMin = 0, areaMax = Infinity/*, features*/ } = req.query;
+        const { propertyType, city, district, minPrice = 0, maxPrice = Infinity, areaMin = 0, areaMax = Infinity } = req.query;
 
         const filters = {
             ...(propertyType && { propertyType }),
@@ -43,7 +40,6 @@ router.get('/ads', async (req, res) => {
             ...(district && { district }),
             ...(minPrice && maxPrice && { price: { $gte: minPrice, $lte: maxPrice } }),
             ...(areaMin && areaMax && { area: { $gte: areaMin, $lte: areaMax } }),
-            //   ...(features && { features: { $in: features.split(',') } }),
         };
 
         const requests = await Ad.find(filters).sort({ refreshedAt: -1 });

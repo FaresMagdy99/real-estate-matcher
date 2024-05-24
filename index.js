@@ -6,7 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const propertyRequestRoutes = require('./routes/propertyRequestRoutes');
 const adRoutes = require('./routes/adRoutes');
 const statsRoutes = require('./routes/statsRoutes');
-// const searchRoutes = require('./routes/searchRoutes');
+const searchRoutes = require('./routes/searchRoutes');
 
 dotenv.config();
 
@@ -26,7 +26,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/propertyRequests', propertyRequestRoutes);
 app.use('/api/ads', adRoutes);
 app.use('/api/stats', statsRoutes);
-// app.use('/api/search', searchRoutes);
+app.use('/api/search', searchRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

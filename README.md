@@ -31,3 +31,13 @@ To run the tests for this project, use the following command:
 
 ```sh
 npm run test
+```
+
+## Manual API Testing
+
+All APIs have been manually tested using Postman to ensure they function properly.
+
+![image](https://github.com/FaresMagdy99/real-estate-matcher/assets/83503909/5c696ef2-935e-4666-a2e2-5e5d941bb9bb)
+
+
+Feel free to reach out if you encounter any issues or have any questions!

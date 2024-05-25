@@ -12,7 +12,7 @@ exports.getMatchingRequests = async (req, res) => {
     await requestParamsSchema.validateAsync(req.query);
 
     const adId = req.params.adId;
-    const limit = +req.query.limit || 10; 
+    const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
 
     const ad = await Ad.findById(adId);
@@ -23,7 +23,6 @@ exports.getMatchingRequests = async (req, res) => {
     const minPrice = ad.price * (1 - priceTolerance);
     const maxPrice = ad.price * (1 + priceTolerance);
 
-    // Aggregation pipeline to find matching requests
     const pipeline = [
       {
         $match: {
@@ -31,13 +30,24 @@ exports.getMatchingRequests = async (req, res) => {
           price: { $gte: minPrice, $lte: maxPrice }
         }
       },
-      { $sort: { refreshedAt: -1 } },
-      { $skip: limit * (page - 1) }, 
-      { $limit: limit },
+      {
+        $facet: {
+          requests: [
+            { $sort: { refreshedAt: -1 } },
+            { $skip: limit * (page - 1) },
+            { $limit: limit }
+          ],
+          totalRequests: [
+            { $count: "count" }
+          ]
+        }
+      }
     ];
 
-    const requests = await PropertyRequest.aggregate(pipeline);
-    const totalRequests = await PropertyRequest.countDocuments({ district: ad.district });
+    const result = await PropertyRequest.aggregate(pipeline);
+    const requests = result[0].requests;
+    const totalRequests = result[0].totalRequests[0] ? result[0].totalRequests[0].count : 0;
+
 
     if (totalRequests == 0) return res.status(200).json({ message: 'No matching requests' });
 
@@ -50,7 +60,7 @@ exports.getMatchingRequests = async (req, res) => {
   } catch (err) {
     if (err.isJoi) {
       return res.status(400).json({ error: err.details[0].message });
-  }
+    }
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }

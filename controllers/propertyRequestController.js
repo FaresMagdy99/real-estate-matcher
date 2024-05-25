@@ -34,7 +34,7 @@ exports.createRequest = async (req, res) => {
 
 exports.updateRequest = async (req, res) => {
   try {
-    const { requestId } = req.params; 
+    const { requestId } = req.params;
     const { description, area, price } = req.body;
 
     const userId = req.userId;
@@ -46,6 +46,8 @@ exports.updateRequest = async (req, res) => {
     }
 
     const request = await PropertyRequest.findById(requestId);
+    // console.log(requestId);
+    // console.log(request);
 
     if (!request) {
       return res.status(404).json({ message: 'Property request not found' });
@@ -63,7 +65,7 @@ exports.updateRequest = async (req, res) => {
 
     await request.save();
 
-    res.status(200).json({ message: 'Property request updated successfully' });
+    res.status(200).json({ message: 'Property request updated successfully', request });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

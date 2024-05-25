@@ -67,7 +67,7 @@ const auth = require('../utils/JWTAuth')
 
 
 router.post('/', auth, propertyRequestController.createRequest);
-router.post('/update', auth, propertyRequestController.updateRequest);
+router.put('/update/:requestId', auth, propertyRequestController.updateRequest);
 
 
 module.exports = router;

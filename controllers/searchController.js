@@ -18,13 +18,14 @@ exports.propertyRequestsFilter = async (req, res, next) => {
         const params = await schema.validateAsync(req.query);
 
         const { propertyType, city, district, minPrice, maxPrice, areaMin, areaMax } = params;
+        // const { propertyType, city, district, minPrice = 0, maxPrice = Infinity, areaMin = 0, areaMax = Infinity } = req.query;
 
         const filters = {
             ...(propertyType && { propertyType }),
             ...(city && { city }),
             ...(district && { district }),
-            ...(minPrice && maxPrice && { price: { $gte: minPrice, $lte: maxPrice } }),
-            ...(areaMin && areaMax && { area: { $gte: areaMin, $lte: areaMax } }),
+            ...{ price: { $gte: minPrice, $lte: maxPrice } },
+            ...{ area: { $gte: areaMin, $lte: areaMax } },
         };
 
         const requests = await PropertyRequest.find(filters).sort({ refreshedAt: -1 });
@@ -49,8 +50,8 @@ exports.adsFilter = async (req, res) => {
             ...(propertyType && { propertyType }),
             ...(city && { city }),
             ...(district && { district }),
-            ...(minPrice && maxPrice && { price: { $gte: minPrice, $lte: maxPrice } }),
-            ...(areaMin && areaMax && { area: { $gte: areaMin, $lte: areaMax } }),
+            ...{ price: { $gte: minPrice, $lte: maxPrice } },
+            ...{ area: { $gte: areaMin, $lte: areaMax } },
         };
 
         const requests = await Ad.find(filters).sort({ refreshedAt: -1 });

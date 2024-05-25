@@ -4,7 +4,7 @@
   "description": "A property matching system connecting clients' requests with agents' ads. Features include secure authentication, efficient request-ad matching, detailed statistics for admins, and a robust API built with Node.js and MongoDB.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r dotenv/config dotenv_config_path=.env.test tests/**/statsTest.js"
   },
   "repository": {
     "type": "git",
@@ -21,10 +21,17 @@
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "expect.js": "^0.3.1",
     "express": "^4.19.2",
+    "joi": "^17.13.1",
     "jsonwebtoken": "^9.0.2",
+    "mocha": "^10.4.0",
     "mongodb": "^4.17.2",
     "mongoose": "^8.4.0",
-    "mongoose-paginate-v2": "^1.8.1"
+    "mongoose-paginate-v2": "^1.8.1",
+    "node-cron": "^3.0.3",
+    "supertest": "^7.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
   }
 }

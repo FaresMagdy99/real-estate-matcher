@@ -13,7 +13,6 @@ exports.createRequest = async (req, res) => {
       return res.status(401).json({ message: 'Unauthorized: Only CLIENTs can create Property Requests' });
     }
 
-    // Create new property request
     const request = new PropertyRequest({
       propertyType,
       area,

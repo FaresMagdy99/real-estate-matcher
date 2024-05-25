@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const adSchema = new mongoose.Schema({
-  // ... same properties as PropertyRequest schema ...
   propertyType: {
     type: String,
     enum: ['VILLA', 'HOUSE', 'LAND', 'APARTMENT'],

@@ -4,8 +4,8 @@ const Ad = require('../models/ad');
 exports.getMatchingRequests = async (req, res) => {
   try {
     const adId = req.params.adId;
-    const limit = parseInt(req.query.limit) || 10; 
-    const page = parseInt(req.query.page) || 1;
+    const limit = +req.query.limit || 10; 
+    const page = +req.query.page || 1;
 
     const ad = await Ad.findById(adId);
     if (!ad) return res.status(404).json({ message: 'Ad not found' });
@@ -29,7 +29,7 @@ exports.getMatchingRequests = async (req, res) => {
     ];
 
     const requests = await PropertyRequest.aggregate(pipeline);
-    const totalRequests = await PropertyRequest.countDocuments({ district: ad.district }); //???? askk
+    const totalRequests = await PropertyRequest.countDocuments({ district: ad.district });
 
     if (totalRequests == 0) return res.status(200).json({ message: 'No matching requests' });
 

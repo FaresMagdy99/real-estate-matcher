@@ -9,8 +9,8 @@ exports.getAdminStats = async (req, res) => {
     }
 
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const page = +req.query.page || 1;
+        const limit = +req.query.limit || 10;
         const skip = (page - 1) * limit;
 
         const pipeline = [
@@ -48,13 +48,13 @@ exports.getAdminStats = async (req, res) => {
                     name: { $first: "$name", },
                     role: { $first: "$role", },
                     requestsCount: {
-                        $sum: { $cond: [{ $ifNull: ["$requests", false], }, 1, 0,], },
+                        $sum: { $cond: ["$requests", 1, 0], },
                     },
                     totalRequestsAmount: {
                         $sum: { $ifNull: ["$requests.price", 0], },
                     },
                     adsCount: {
-                        $sum: { $cond: [{ $ifNull: ["$ads", false], }, 1, 0,], },
+                        $sum: { $cond: ["$ads", 1, 0], },
                     },
                     totalAdsAmount: {
                         $sum: { $ifNull: ["$ads.price", 0], },
@@ -64,7 +64,7 @@ exports.getAdminStats = async (req, res) => {
             {
                 $facet: {
                     metadata: [{ $count: "total", },],
-                    data: [{ $skip: 0, }, { $limit: 10, },],
+                    data: [{ $skip: skip }, { $limit: limit },],
                 },
             },
         ];

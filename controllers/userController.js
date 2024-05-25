@@ -13,7 +13,7 @@ exports.register = async (req, res) => {
     // Hash password
     // const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = new User({ name, phone, role, password});
+    const user = new User({ name, phone, role, password });
     await user.save();
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '3600s' }); // 1 hour

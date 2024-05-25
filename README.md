@@ -39,5 +39,8 @@ All APIs have been manually tested using Postman to ensure they function properl
 
 ![image](https://github.com/FaresMagdy99/real-estate-matcher/assets/83503909/5c696ef2-935e-4666-a2e2-5e5d941bb9bb)
 
+**link for Postman Doc**:
+    Go to `https://documenter.getpostman.com/view/22333854/2sA3QqgYiU`.
+
 
 Feel free to reach out if you encounter any issues or have any questions!

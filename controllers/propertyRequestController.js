@@ -1,9 +1,21 @@
 const PropertyRequest = require('../models/propertyRequest');
 const User = require('../models/user');
+const Joi = require('joi');
+
+const propertyRequestSchema = Joi.object({
+  propertyType: Joi.string().valid('VILLA', 'HOUSE', 'LAND', 'APARTMENT').required(),
+  area: Joi.number().positive().required(),
+  price: Joi.number().positive().required(),
+  city: Joi.string().required(),
+  district: Joi.string().required(),
+  description: Joi.string().optional()
+});
 
 exports.createRequest = async (req, res) => {
   try {
-    const { propertyType, area, price, city, district, description } = req.body;
+    const body = await propertyRequestSchema.validateAsync(req.body);
+
+    const { propertyType, area, price, city, district, description } = body;
 
     const userId = req.userId;
 
@@ -27,15 +39,26 @@ exports.createRequest = async (req, res) => {
 
     res.status(201).json({ message: 'Property request created successfully' });
   } catch (err) {
+    if (err.isJoi) {
+      return res.status(400).json({ message: err.details[0].message });
+    }
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
+const updateRequestSchema = Joi.object({
+  description: Joi.string().optional(),
+  area: Joi.number().positive().optional(),
+  price: Joi.number().positive().optional()
+});
+
 exports.updateRequest = async (req, res) => {
   try {
+    const body = await updateRequestSchema.validateAsync(req.body);
+
     const { requestId } = req.params;
-    const { description, area, price } = req.body;
+    const { description, area, price } = body;
 
     const userId = req.userId;
 
@@ -67,6 +90,9 @@ exports.updateRequest = async (req, res) => {
 
     res.status(200).json({ message: 'Property request updated successfully', request });
   } catch (err) {
+    if (err.isJoi) {
+      return res.status(400).json({ message: err.details[0].message });
+    }
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }

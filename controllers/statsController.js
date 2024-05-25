@@ -1,6 +1,14 @@
 const User = require('../models/user');
+const Joi = require('joi');
+
+const requestParamsSchema = Joi.object({
+    limit: Joi.number().integer().min(1).optional(),
+    page: Joi.number().integer().min(1).optional()
+});
+
 
 exports.getAdminStats = async (req, res) => {
+
     const userId = req.userId;
 
     const user = await User.findOne({ _id: userId });
@@ -9,6 +17,8 @@ exports.getAdminStats = async (req, res) => {
     }
 
     try {
+        await requestParamsSchema.validateAsync(req.query);
+
         const page = +req.query.page || 1;
         const limit = +req.query.limit || 10;
         const skip = (page - 1) * limit;
@@ -83,6 +93,10 @@ exports.getAdminStats = async (req, res) => {
 
         res.json(response);
     } catch (error) {
+
+        if (error.isJoi) {
+            return res.status(400).json({ message: error.details[0].message });
+        }
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
     }

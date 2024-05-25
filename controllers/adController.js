@@ -1,9 +1,21 @@
 const Ad = require('../models/ad');
 const User = require('../models/user');
+const Joi = require('joi');
+
+const adSchema = Joi.object({
+  propertyType: Joi.string().valid('VILLA', 'HOUSE', 'LAND', 'APARTMENT').required(),
+  area: Joi.number().positive().required(),
+  price: Joi.number().positive().required(),
+  city: Joi.string().required(),
+  district: Joi.string().required(),
+  description: Joi.string().optional()
+});
 
 exports.createAd = async (req, res) => {
   try {
-    const { propertyType, area, price, city, district, description } = req.body;
+    const body = await adSchema.validateAsync(req.body);
+
+    const { propertyType, area, price, city, district, description } = body;
 
     const userId = req.userId;
 
@@ -29,6 +41,11 @@ exports.createAd = async (req, res) => {
 
     res.status(201).json({ message: 'Ad created successfully' });
   } catch (err) {
+
+    if (err.isJoi) {
+      return res.status(400).json({ message: err.details[0].message });
+    }
+
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
